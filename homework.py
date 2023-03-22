@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
     def __init__(self,
@@ -24,9 +28,9 @@ class InfoMessage:
 
 class Training:
     """Базовый класс тренировки."""
-    M_IN_KM: float = 1000
+    M_IN_KM: int = 1000
     LEN_STEP: float = 0.65
-    MIN_IN_H: float = 60
+    MIN_IN_H: int = 60
 
     def __init__(self,
                  action: int,
@@ -51,19 +55,17 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        info_message = InfoMessage(self.__class__.__name__,
-                                   self.duration,
-                                   self.get_distance(),
-                                   self.get_mean_speed(),
-                                   self.get_spent_calories())
-        return info_message
+        return InfoMessage(self.__class__.__name__,
+                           self.duration,
+                           self.get_distance(),
+                           self.get_mean_speed(),
+                           self.get_spent_calories())
 
 
 class Running(Training):
     """Тренировка: бег."""
     LEN_STEP: float = 0.65
-    M_IN_KM: float = 1000
-    CALORIES_MEAN_SPEED_MULTIPLIER: float = 18
+    CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
 
     def get_spent_calories(self) -> float:
@@ -79,7 +81,7 @@ class SportsWalking(Training):
     CALORIES_WEIGHT_MULTIPLIER: float = 0.035
     CALORIES_SPEED_HEIGHT_MULTIPLIER: float = 0.029
     KMH_IN_MSEC: float = 0.278
-    CM_IN_M: float = 100
+    CM_IN_M: int = 100
 
     def __init__(self,
                  action: int,
@@ -104,10 +106,9 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    M_IN_KM: float = 1000
     LEN_STEP: float = 1.38
     CALORIES_MEAN_SPEED_SHIFT: float = 1.1
-    CALORIES_WEIGHT_MULTIPLIER: float = 2
+    CALORIES_WEIGHT_MULTIPLIER: int = 2
 
     def __init__(self,
                  action: int,
@@ -133,14 +134,14 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    dictionary = {
+    workout_type_classes: dict[str, type[Training]] = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming
     }
-    if workout_type not in dictionary:
+    if workout_type not in workout_type_classes:
         return ('Я не знаю такой тренировки.')
-    return dictionary[workout_type](*data)
+    return workout_type_classes[workout_type](*data)
 
 
 def main(training: Training) -> None:
